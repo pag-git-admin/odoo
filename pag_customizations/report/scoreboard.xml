@@ -76,7 +76,7 @@
                                         padding-bottom: 2px;
                                         line-height: 1;
                                             ">Plan</td>
-                                            <t t-set="ytd_plan" t-value="0"/>
+                                           
                                             <t t-set="last_actual" t-value="0"/>
                                             <t t-foreach="months" t-as="month">
                                                 <t t-set="month_task" t-value="subtask.child_ids.filtered(lambda m: month.lower() in m.name.lower())"/>
@@ -85,7 +85,7 @@
                                                 <t t-set="task_compare" t-value="month_task[0].task_date > context_timestamp(datetime.datetime.now()).date() if month_task[0].task_date else 0"/>
                                                 <t t-set="plan_val" t-value="month_task[0].plan_1 if month_task else 0"/>
                                                 <t t-set="actual_val" t-value="month_task[0].actual_1 if month_task else 0"/>
-                                               <t t-set="ytd_plan" t-value="subtask.plan_1"/>
+                                              
                                                 <td style="text-align: center; font-size: 13px; border-right: 1px solid black; vertical-align: middle;"
                                 t-attf-style="background-color: #{'lightgray' if task_compare else ''}; color: #{'#999' if task_compare else 'black'};">
                                                         <!--PG-43-Remove-decimal-places-from-Scorecard-->
@@ -117,8 +117,13 @@
                                             </t>
                                             <td style="text-align: center; font-size: 13px; border-left: 1px solid black; border-right: 1px solid black;vertical-align: middle;">
                                                 <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                    
-                                                    <t t-esc="int(subtask.plan_1)"/>
+                                                    <!--PG-66-For-goals-that-are-percentage-base-show-the-sign-in-the-YTD-column-->
+                                                   <t t-if="month_task[0].rollup_type == '4'">
+                                                        <t t-esc="int(subtask.plan_1)"/> %
+                                                    </t>
+                                                   <t t-else="">
+                                                        <t t-esc="int(subtask.plan_1)"/>
+                                                   </t>
                                                   
                                                 </div>
                                             </td>
