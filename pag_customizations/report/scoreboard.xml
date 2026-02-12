@@ -148,10 +148,19 @@
                                             
                                             <t t-set="last_month_task" t-value="subtask.child_ids.filtered(lambda m: month_name.lower() in m.name.lower())"/>
 
-                                     <t t-set="last_month_actual_val" t-value="last_month_task[0].actual_1 if last_month_task and last_month_task[0].actual_1 else 0"/>
-    
-                                         
-                                                <t t-set="last_actual" t-value="last_month_actual_val"/>
+                                    
+                                                <t t-set="last_month_actual_val"
+                                                       t-value="last_month_task[0].actual_1 if last_month_task and last_month_task[0].actual_1 else 0"/>
+
+                                                    <t t-set="last_actual" t-value="last_month_actual_val"/>
+
+                                                    <t t-if="last_month_task and last_month_task[0].actual_1 and last_month_task[0].rollup_type == '4'">
+                                                        <t t-esc="int(last_actual)"/> %
+                                                    </t>
+                                                    <t t-else="">
+                                                        <t t-esc="int(last_actual)"/>
+                                                    </t>
+
                                             
                                         </t>
                                             <t t-set="actual_val" t-value="month_task[0].actual_1 if month_task and month_task[0].actual_1 else 0"/>
