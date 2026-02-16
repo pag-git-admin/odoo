@@ -2,7 +2,6 @@
     <!--PG-17-Scorecard-Proof-of-Concept-->
     <template id="external_layout_boxed_custom">
         <t t-foreach="docs" t-as="doc">
-                 
             <div t-attf-class="header o_company_#{doc.company_id.id}_layout">
                 <table class="table table-borderless" style="width: 100%;">
                     <tr>
@@ -10,6 +9,7 @@
                             <h1>
                                 <!--PG-38-Ability-to-print-scorecards-for-more-than-1-parent-task-->
                                 <span style="font-weight: bold;">Scorecard Report for 
+                                    
                                     <t t-esc="task.name"/>
                                 </span>
                             </h1>
@@ -20,7 +20,6 @@
                     </tr>
                 </table>
             </div>
-       
             <div t-attf-class="article o_report_layout_boxed o_table_boxed o_company_#{doc.company_id.id}_layout o_snail_mail {{'o_report_layout_background' if doc.company_id.layout_background != 'Blank' else ''}}"
              t-attf-style="background-image: url({{ 'data:image/png;base64,%s' % doc.company_id.layout_background_image.decode('utf-8') if doc.company_id.layout_background_image and doc.company_id.layout_background == 'Custom' else
                            '/base/static/img/demo_logo_report.png' if doc.company_id.layout_background == 'Demo logo' else ''}});"
@@ -34,7 +33,9 @@
                     <div class="col-8"></div>
                     <div class="col-4 text-end">
                         <span t-if="report_type == 'pdf'" class="text-muted">Page 
+                            
                             <span class="page"/> / 
+                            
                             <span class="topage"/></span>
                     </div>
                 </div>
@@ -44,194 +45,161 @@
     <template id="report_pag_scoreboard">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
-
-                <div class="page"  style="margin: 0px; padding: 0px;" >
+                <div class="page" style="margin:0; padding:0;">
                     <t t-call="pag_customizations.external_layout_boxed_custom">
-                        
-                
-                        <div style="margin: 0px; padding: 0px;">
-                            <table class="table table-bordered" style="border-collapse: collapse; width: 100%; border: 1px solid black; page-break-inside: avoid; page-break-after: auto;">
+                        <div style="margin:0; padding:0;">
+                            <style>
+                            table { 
+                                page-break-inside:auto;
+                                width:100%;
+                                border-collapse:collapse;
+                                table-layout:fixed;
+                            }
+                            thead { display:table-header-group; }
+                            tr { page-break-inside:avoid; }
+                            td, th { font-size:12px; }
+                           
+
+                        </style>
+                            <t t-set="months"
+                           t-value="['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']"/>
+                            <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                                <!-- ================= HEADER ================= -->
                                 <thead>
-                                    <tr style="background-color: rgb(33, 126, 213); color: white;">
-                                        <th style="padding: 4px; color: white; font-weight: 600; white-space: nowrap;text-align: left; border-right: 1px solid black;width:30%;">TARGET TO IMPROVE</th>
-                                        <th></th>
-                                        <t t-set="months" t-value="['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']"/>
+                                    <tr style="background-color:#217ED5; color:white;">
+                                        <th style="width:30%; border:1px solid black; padding:6px; text-align:left;">
+    TARGET TO IMPROVE
+</th>
+                                        <th style="width:8%; border:1px solid black; padding:6px;"></th>
                                         <t t-foreach="months" t-as="month">
-                                            <th style="text-align: center; border-right: 1px solid black;padding: 4px; color: white; font-weight: 600; white-space: nowrap;">
+                                            <th style="border:1px solid black; padding:6px; text-align:center;">
                                                 <t t-esc="month"/>
                                             </th>
                                         </t>
-                                        <th style="text-align: center; border-right: 1px solid black; color: white; font-weight: 600; white-space: nowrap;">YTD</th>
+                                        <th style="border:1px solid black; padding:6px; text-align:center;">
+                                        YTD
+                                    </th>
                                     </tr>
                                 </thead>
-                                <tbody style="page-break-inside: avoid; page-break-after: auto;">
-                                    <!--PG-38-Ability-to-print-scorecards-for-more-than-1-parent-task-->
+                                <!-- ================= BODY ================= -->
+                                <tbody>
                                     <t t-foreach="task.child_ids" t-as="subtask">
-                                        <!-- PLAN ROW -->
-                                        <tr style="border: 1px solid black;page-break-inside: avoid; page-break-after: auto; ">
-                                            <td rowspan="2" style="text-align: left; word-wrap: break-word; white-space: normal; width: 100px; border-right: 1px solid black;width:30%;font-size:12px;">
+                                        <!-- ========= PLAN ROW ========= -->
+                                        <tr style="page-break-inside: avoid;">
+                                            <td rowspan="2"
+    style="
+        border:1px solid black;
+        padding:6px;
+        vertical-align:middle;
+        white-space:normal;
+        word-break:break-word;
+        line-height:1.3;
+    ">
                                                 <t t-esc="subtask.name"/>
                                             </td>
-                                            <td style="text-align: left; border-right: 1px solid black;
-                                        padding-bottom: 2px;
-                                        line-height: 1;
-                                            ">Plan</td>
-                                           
-                                            <t t-set="last_actual" t-value="0"/>
+                                            <td style="border:1px solid black; padding:6px; vertical-align:middle;">
+                                            Plan
+                                        </td>
                                             <t t-foreach="months" t-as="month">
-                                                <t t-set="month_task" t-value="subtask.child_ids.filtered(lambda m: month.lower() in m.name.lower())"/>
-                                                <!--PG-34-Gray-out-Planned-values-for-months-in-the-future-based-on-date-->
-                                                   <t t-if="month_task">
-                                                <t t-set="task_compare" t-value="month_task[0].task_date > context_timestamp(datetime.datetime.now()).date() if month_task[0].task_date else 0"/>
-                                                <t t-set="plan_val" t-value="month_task[0].plan_1 if month_task else 0"/>
-                                                <t t-set="actual_val" t-value="month_task[0].actual_1 if month_task else 0"/>
-                                              
-                                                <td style="text-align: center; font-size: 13px; border-right: 1px solid black; vertical-align: middle;"
-                                t-attf-style="background-color: #{'lightgray' if task_compare else ''}; color: #{'#999' if task_compare else 'black'};">
-                                                        <!--PG-43-Remove-decimal-places-from-Scorecard-->
-                                                        <t t-if="month_task[0].rollup_type == '4'">
-                                                            <t t-if="plan_val">
-                                                                <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                                    <t t-esc="int(plan_val)"/> %
-                                                            
-                                                                </div>
-                                                            </t>
-                                                            <t t-else="">
-                                                                <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                                    <t  t-esc="int(plan_val)"/>
-                                                                </div>
-                                                            </t>
-                                                        </t>
-                                                        <t t-else="">
-                                                            <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                                <t   t-esc="int(plan_val)"/>
-                                                            </div>
-                                                        </t>
-                                                    
-                                                   
+                                                <t t-set="month_task"
+                                               t-value="subtask.child_ids.filtered(lambda m: month.lower() in m.name.lower())"/>
+                                                <t t-set="plan_val"
+                                               t-value="month_task[0].plan_1 if month_task else 0"/>
+                                                <!-- Future Month Check -->
+                                                <t t-set="is_future"
+                                               t-value="month_task and month_task[0].task_date and month_task[0].task_date > context_timestamp(datetime.datetime.now()).date()"/>
+                                                <td t-attf-style="
+                                                border:1px solid black;
+                                                text-align:center;
+                                                padding:4px; vertical-align:middle;
+                                                background-color: {{ 'lightgray' if is_future else 'white' }};
+                                                color: {{ '#999' if is_future else 'black' }};
+                                            ">
+                                                    <t t-if="month_task and month_task[0].rollup_type == '4'">
+                                                        <t t-esc="int(plan_val)"/> %
+                                                </t>
+                                                    <t t-else="">
+                                                        <t t-esc="int(plan_val)"/></t>
                                                 </td>
-                                                </t>
-                                                 <t t-elif="not month_task">
-                                                   <td style="text-align: center; font-size: 13px; border-right: 1px solid black; vertical-align: middle;">0</td>
-                                                </t>
                                             </t>
-                                            <td style="text-align: center; font-size: 13px; border-left: 1px solid black; border-right: 1px solid black;vertical-align: middle;">
-                                                <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                    <!--PG-66-For-goals-that-are-percentage-base-show-the-sign-in-the-YTD-column-->
-                                                   <t t-if="month_task[0].rollup_type == '4'">
-                                                        <t t-esc="int(subtask.plan_1)"/> %
-                                                    </t>
-                                                   <t t-else="">
-                                                        <t t-esc="int(subtask.plan_1)"/>
-                                                   </t>
-                                                  
-                                                </div>
+                                            <!-- YTD PLAN -->
+                                            <td style="border:1px solid black; text-align:center; padding:4px;vertical-align:middle;">
+                                                <t t-if="subtask.rollup_type == '4'">
+                                                    <t t-esc="int(subtask.plan_1)"/> %
+                                            </t>
+                                                <t t-else="">
+                                                    <t t-esc="int(subtask.plan_1)"/></t>
                                             </td>
                                         </tr>
-                                        <!-- ACTUAL ROW -->
-                                        <tr style="border: 1px solid black;page-break-inside: avoid; page-break-after: auto;">
-                                            <td style="text-align: left; border-right: 1px solid black;
-                                        padding-bottom: 2px;
-                                        line-height: 1;
-                                            ">Actual</td>
-                                          <!--PG-44-Change-YTD-Calculations-on-Scorecard-->
-                                          <t t-set="last_actual" t-value="0"/>
+                                        <!-- ========= ACTUAL ROW ========= -->
+                                        <tr style="page-break-inside: avoid;">
+                                            <td style="border:1px solid black; padding:6px; vertical-align:middle;">
+                                            Actual
+                                        </td>
+                                            <t t-set="last_actual" t-value="0"/>
                                             <t t-foreach="months" t-as="month">
-                                            
-                                            <t t-set="month_task" t-value="subtask.child_ids.filtered(lambda m: month.lower() in m.name.lower())"/>
-                                            <!--PG-64-Scorecard-not-showing-YTD-Actual-values-in-new-year-->
-                                           <t t-set="today" t-value="datetime.date.today()"/>
-                                           
-                                            <t t-set="current_month" t-value="12 if today.month == 1 else today.month-1"/>
-                                           <t t-foreach="range(0, current_month)" t-as="m_index">
-                                            <t t-set="month_name" t-value="months[m_index]"/>
-                                            
-                                            <t t-set="last_month_task" t-value="subtask.child_ids.filtered(lambda m: month_name.lower() in m.name.lower())"/>
-
-                                    
-                                                <t t-set="last_month_actual_val"
-                                                       t-value="last_month_task[0].actual_1 if last_month_task and last_month_task[0].actual_1 else 0"/>
-
-                                                    <t t-set="last_actual" t-value="last_month_actual_val"/>
-
-                                                    <t t-if="last_month_task and last_month_task[0].actual_1 and last_month_task[0].rollup_type == '4'">
-                                                        <t t-esc="int(last_actual)"/> %
-                                                    </t>
+                                                <t t-set="month_task"
+                                               t-value="subtask.child_ids.filtered(lambda m: month.lower() in m.name.lower())"/>
+                                                <t t-set="actual_val"
+                                               t-value="month_task[0].actual_1 if month_task and month_task[0].actual_1 else 0"/>
+                                                <t t-set="status_name"
+                                               t-value="month_task[0].task_status.name if month_task and month_task[0].task_status else ''"/>
+                                                <!-- Status Color Mapping -->
+                                                <t t-set="status_color"
+                                               t-value="
+                                                   'gray' if status_name == 'Not Started'
+                                                   else 'blue' if status_name == 'On Track'
+                                                   else '#FFBF00' if status_name == 'At Risk/Delayed'
+                                                   else 'red' if status_name == 'Blocked'
+                                                   else 'green' if status_name == 'Completed'
+                                                   else 'white'
+                                               "/>
+                                                <td t-attf-style="
+                                                border:1px solid black; vertical-align:middle;
+                                                text-align:center;
+                                                padding:4px;
+                                                background-color: {{ status_color }};
+                                                color: {{ 'black' if not status_name else 'white' }};
+                                            ">
+                                                    <t t-if="month_task and month_task[0].rollup_type == '4'">
+                                                        <t t-esc="int(actual_val)"/> %
+                                                </t>
                                                     <t t-else="">
-                                                        <t t-esc="int(last_actual)"/>
-                                                    </t>
-
-                                            
-                                        </t>
-                                            <t t-set="actual_val" t-value="month_task[0].actual_1 if month_task and month_task[0].actual_1 else 0"/>
-                                             <!--PG-42-Color-code-the-scorecard-based-on-the-status-of-the-sub-task-sub-task-->
-                                            <t t-set="status_val" t-value="month_task[0].task_status if month_task else ''"/>
-                                            <td style="text-align: center; font-size: 13px; border-right: 1px solid black; vertical-align: middle;"
-                            t-attf-style="background-color: #{
-                            'gray' if status_val.name == 'Not Started'
-                            else 'blue' if status_val.name == 'On Track'
-                            else '#FFBF00' if status_val.name == 'At Risk/Delayed'
-                            else 'red' if status_val.name == 'Blocked'
-                            else 'green' if status_val.name == 'Completed'
-                            else 'white'
-                        
-                            };color: #{
-                                'black' if not status_val else 'white'
-                            }; ">                   <!--PG-43-Remove-decimal-places-from-Scorecard-->
-                                                    <t t-if="month_task">
-                                                        <t t-if="month_task[0].rollup_type == '4'">
-                                                            <t t-if="actual_val">
-                                                                <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                                    <t  t-esc="int(actual_val)"/> %
-                                                        
-                                                            
-                                                                </div>
-                                                            </t>
-                                                            <t t-else="">
-                                                                <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                                    <t style="text-align: center;" t-esc="int(actual_val)"/>
-                                                                </div>
-                                                            </t>
-                                                        </t>
-                                                        <t t-else="">
-                                                            <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                                <t  t-esc="int(actual_val)"/>
-                                                            </div>
-                                                        </t>
-                                                    </t>
-                                                    <t t-if="not month_task">
-                                                        <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                    0
-                                                </div>
-                                                    </t>
+                                                        <t t-esc="int(actual_val)"/></t>
                                                 </td>
+                                                <t t-set="today" t-value="datetime.date.today()"/>
+                                                <t t-set="current_month" t-value="12 if today.month == 1 else today.month-1"/>
+                                                <t t-foreach="range(0, current_month)" t-as="m_index">
+                                                    <t t-set="month_name" t-value="months[m_index]"/>
+                                                    <t t-set="last_month_task" t-value="subtask.child_ids.filtered(lambda m: month_name.lower() in m.name.lower())"/>
+                                                    <t t-set="last_month_actual_val"
+                                                       t-value="last_month_task[0].actual_1 if last_month_task and last_month_task[0].actual_1 else 0"/>
+                                                    <t t-set="last_actual" t-value="last_month_actual_val"/></t>
                                             </t>
                                             <!-- YTD ACTUAL -->
-                                            <t t-set="status_name" t-value="subtask.task_status.name"/>
-                                            <t t-set="status_color" t-value="
-                                                'gray' if status_name == 'Not Started'
-                                                else 'blue' if status_name == 'On Track'
-                                                else '#FFBF00' if status_name == 'At Risk/Delayed'
-                                                else 'red' if status_name == 'Blocked'
-                                                else 'green' if status_name == 'Completed'
-                                                else 'white'
-                                            "/>
-                                            <t t-set="font_color" t-value="'black' if not status_name else 'white'"/>
-
-                                                                                      
+                                            <t t-set="status_name"
+                                           t-value="subtask.task_status.name if subtask.task_status else ''"/>
+                                            <t t-set="status_color"
+                                           t-value="
+                                               'gray' if status_name == 'Not Started'
+                                               else 'blue' if status_name == 'On Track'
+                                               else '#FFBF00' if status_name == 'At Risk/Delayed'
+                                               else 'red' if status_name == 'Blocked'
+                                               else 'green' if status_name == 'Completed'
+                                               else 'white'
+                                           "/>
                                             <td t-attf-style="
-                                                text-align: center;
-                                                font-size: 13px;
-                                                border-left: 1px solid black;
-                                                border-right: 1px solid black;
-                                                vertical-align: middle;
-                                                background-color: {{ status_color }};
-                                                color: {{ font_color }};
-                                            ">
-
-                                                <div style="width: 100%; text-align: center;font-size: 13px;">
-                                                   <t t-esc="int(last_actual)"/>
-                                                </div>
+                                            border:1px solid black; vertical-align:middle;
+                                            text-align:center;
+                                            padding:4px;
+                                            background-color: {{ status_color }};
+                                            color: {{ 'black' if not status_name else 'white' }};
+                                        ">
+                                                <t t-if=" last_month_task[0].rollup_type == '4'">
+                                                    <t t-esc="int(last_actual)"/> %
+                                                    </t>
+                                                <t t-else="">
+                                                    <t t-esc="int(last_actual)"/></t>
                                             </td>
                                         </tr>
                                     </t>
@@ -261,6 +229,5 @@
         <field name="report_name">pag_customizations.report_pag_scoreboard</field>
         <field name="report_file">pag_customizations.report_pag_scoreboard</field>
         <field name="paperformat_id" ref="pag_customizations.paperformat_pag_landscape"/>
-        
     </record>
 </odoo>
